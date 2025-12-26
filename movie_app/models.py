@@ -59,7 +59,7 @@ class Actor(models.Model):
 
 
 class ActorImage(models.Model):
-    actor = models.ForeignKey(Actor, on_delete=models.CASCADE)
+    actor = models.ForeignKey(Actor, on_delete=models.CASCADE,related_name='images')
     image = models.ImageField(upload_to='actor_images')
 
     def __str__(self):
@@ -71,8 +71,8 @@ class Movie(models.Model):
     trailer = models.URLField()
     slogan = models.CharField(max_length=60, null=True, blank=True)
     year = models.DateField()
-    country = models.ManyToManyField(Country)
-    director = models.ManyToManyField(Director)
+    country = models.ManyToManyField(Country,related_name='country_movies')
+    director = models.ManyToManyField(Director,related_name='director_movies')
     genre = models.ManyToManyField(Genre, related_name='genres_movies')
     MovieTypeChoices = (
         ('360','360'),
@@ -82,16 +82,24 @@ class Movie(models.Model):
         ('1080 Ultra', '1080 Ultra'))
     movie_type = models.CharField(max_length=30, choices=MovieTypeChoices,)
     movie_time = models.PositiveSmallIntegerField()
-    actor = models.ManyToManyField(Actor)
+    actor = models.ManyToManyField(Actor,related_name='actor_movies')
     description = models.TextField()
     movie_status = models.CharField(max_length=20, choices=StatusChoices)
 
     def __str__(self):
         return self.movie_name
 
+    def get_avg_rating(self):
+        all_ratings=self.ratings.all()
+        if all_ratings.exists():
+          return round(sum([i.stars for i in all_ratings])/all_ratings.count(), 2)
+        return 0
+
+    def get_count_ratings(self):
+        return  self.ratings.count()
 
 class MovieVideo(models.Model):
-    movie = models.ForeignKey(Movie, on_delete=models.CASCADE)
+    movie = models.ForeignKey(Movie, on_delete=models.CASCADE, related_name='videos')
     video_name = models.CharField(max_length=30, verbose_name='озвучка')
     video = models.FileField(upload_to='movie_videos/')
 
@@ -100,7 +108,7 @@ class MovieVideo(models.Model):
         return f'{self.movie},{self.video_name}'
 
 class MovieFrame(models.Model):
-    movie = models.ForeignKey(Movie, on_delete=models.CASCADE)
+    movie = models.ForeignKey(Movie, on_delete=models.CASCADE, related_name='frames')
     image = models.ImageField(upload_to='movie_frames')
 
 
@@ -109,7 +117,7 @@ class MovieFrame(models.Model):
 
 class Rating(models.Model):
     user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
-    movie = models.ForeignKey(Movie, on_delete=models.CASCADE)
+    movie = models.ForeignKey(Movie, on_delete=models.CASCADE,related_name='ratings')
     stars = models.PositiveSmallIntegerField(choices=[(i, str(i)) for i in range(1,11)])
 
     def __str__(self):
@@ -117,7 +125,7 @@ class Rating(models.Model):
 
 class Review(models.Model):
     user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
-    movie = models.ForeignKey(Movie, on_delete=models.CASCADE)
+    movie = models.ForeignKey(Movie, on_delete=models.CASCADE,related_name='reviews')
     parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True)
     comments = models.TextField()
     created_date = models.DateTimeField(auto_now_add=True)

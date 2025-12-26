@@ -1,19 +1,30 @@
-from .serializers import (UserProfileSerializer,CategoryListSerializer,CategoryDetailSerializer ,
+from .serializers import (UserProfileListSerializer,UserProfileDetailSerializer,CategoryListSerializer,CategoryDetailSerializer ,
                           GenreListSerializer,GenreDetailSerializer,
-                          CountrySerializer, DirectorSerializer, ActorSerializer, ActorImageSerializer,
-                          MovieListSerializer,MovieDetailSerializer, MovieVideoSerializer, MovieFrameSerializer, RatingSerializer,
+                          CountryListSerializer,CountryDetailSerializer, DirectorListSerializer,DirectorDetailSerializer,
+                          ActorListSerializer,ActorDetailSerializer, ActorImageSerializer,
+                          MovieListSerializer,MovieDetailSerializer,  RatingSerializer,
                           ReviewSerializer, ReviewLikeSerializer, FavoriteSerializer, FavoriteItemSerializer,
                             HistorySerializer)
 from .models import (UserProfile, Category, Genre, Country, Director, Actor, ActorImage,
-                     Movie, MovieVideo, MovieFrame, Rating, Review, ReviewLike, Favorite, History, FavoriteItem)
+                     Movie, Rating, Review, ReviewLike, Favorite, History, FavoriteItem)
 from rest_framework import viewsets, generics
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters  import SearchFilter, OrderingFilter
 from .pagination import MovieListPagination, CategoryListPagination,GenreListPagination
 
-class UserProfileViewSet(viewsets.ModelViewSet):
+class UserProfileListAPIView(generics.ListAPIView):
     queryset = UserProfile.objects.all()
-    serializer_class = UserProfileSerializer
+    serializer_class = UserProfileListSerializer
+
+    def get_queryset(self):
+        return UserProfile.objects.filter(id=self.request.user.id )
+
+class UserProfileDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = UserProfile.objects.all()
+    serializer_class = UserProfileDetailSerializer
+
+    def get_queryset(self):
+        return UserProfile.objects.filter(id=self.request.user.id )
 
 class CategoryListAPIView(generics.ListAPIView):
     queryset = Category.objects.all()
@@ -33,17 +44,29 @@ class GenreDetailAPIView(generics.RetrieveAPIView):
     queryset = Genre.objects.all()
     serializer_class = GenreDetailSerializer
 
-class CountryViewSet(viewsets.ModelViewSet):
+class CountryListAPIView(generics.ListAPIView):
     queryset = Country.objects.all()
-    serializer_class = CountrySerializer
+    serializer_class = CountryListSerializer
 
-class DirectorViewSet(viewsets.ModelViewSet):
+class CountryDetailAPIView(generics.RetrieveAPIView):
+    queryset = Country.objects.all()
+    serializer_class = CountryDetailSerializer
+
+class DirectorListAPIView(generics.ListAPIView):
     queryset = Director.objects.all()
-    serializer_class = DirectorSerializer
+    serializer_class = DirectorListSerializer
 
-class ActorViewSet(viewsets.ModelViewSet):
+class DirectorDetailAPIView(generics.RetrieveAPIView):
+    queryset = Director.objects.all()
+    serializer_class = DirectorDetailSerializer
+
+class ActorListAPIView(generics.ListAPIView):
     queryset = Actor.objects.all()
-    serializer_class = ActorSerializer
+    serializer_class = ActorListSerializer
+
+class ActorDetailAPIView(generics.RetrieveAPIView):
+    queryset = Actor.objects.all()
+    serializer_class = ActorDetailSerializer
 
 class ActorImageViewSet(viewsets.ModelViewSet):
     queryset = ActorImage.objects.all()
@@ -67,15 +90,7 @@ class MovieDetailAPIView(generics.RetrieveAPIView):
     queryset = Movie.objects.all()
     serializer_class = MovieDetailSerializer
 
-class MovieVideoViewSet(viewsets.ModelViewSet):
-    queryset = MovieVideo.objects.all()
-    serializer_class = MovieVideoSerializer
-
-class MovieFrameViewSet(viewsets.ModelViewSet):
-    queryset = MovieFrame.objects.all()
-    serializer_class = MovieFrameSerializer
-
-class RatingViewSet(viewsets.ModelViewSet):
+class RatingCreateAPIView(generics.CreateAPIView):
     queryset = Rating.objects.all()
     serializer_class = RatingSerializer
 
@@ -98,3 +113,7 @@ class FavoriteItemViewSet(viewsets.ModelViewSet):
 class HistoryViewSet(viewsets.ModelViewSet):
     queryset = History.objects.all()
     serializer_class = HistorySerializer
+
+class CountryDetailAPIVew(generics.RetrieveAPIView):
+    queryset = Country.objects.all()
+    serializer_class = CountryDetailSerializer
